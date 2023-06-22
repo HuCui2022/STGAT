@@ -222,7 +222,7 @@ class STAttentionBlock(nn.Module):
                 attention = F.softmax(attention, dim=-1)#* self.betas.repeat(1,1,self.num_node,1)
                 self.graph_a = self.graph_a.cuda(x.get_device())
                 diff = (self.diff_net(torch.einsum('nctu,uv->nctv',y, self.graph_a)).repeat(1,1,1,self.window_size) - upfold)\
-                    .view(N, self.num_subset, self.in_channels//self.num_subset, T ,self.window_size, V)  #nsctwv
+                    .view(N, self.num_subset, self.in_channels//self.num_subset, T ,self.window_size, V)  #nsctwv   根据距离进行分组，来减少计算。
                 diff = torch.sigmoid(diff.mean(-1).mean(2).mean(2)) # nsw
                 attention = attention *diff.unsqueeze(-1).repeat(1,1,self.num_node,1)
             if self.glo_reg_s:
